@@ -1,0 +1,45 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-50: #f5f0ff;
+  --color-brand-100: #ede6ff;
+  --color-brand-200: #dcd0ff;
+  --color-brand-300: #c4aaff;
+  --color-brand-400: #a67aff;
+  --color-brand-500: #863bff;
+  --color-brand-600: #7e14ff;
+  --color-brand-700: #6b00e6;
+  --color-brand-800: #5a00bf;
+  --color-brand-900: #4b009c;
+  --color-brand-950: #2e0066;
+}
+
+body {
+  margin: 0;
+  background: #09090b;
+  color: #e4e4e7;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Phase flow connector */
+.phase-connector {
+  position: relative;
+}
+.phase-connector::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 100%;
+  width: 2rem;
+  height: 1px;
+  background: linear-gradient(to right, var(--color-brand-500), transparent);
+}
+.phase-connector:last-child::after {
+  display: none;
+}
+
+/* Pricing card highlight */
+.pricing-highlight {
+  box-shadow: 0 0 0 1px var(--color-brand-500), 0 0 32px rgba(134, 59, 255, 0.15);
+}
