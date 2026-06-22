@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 const phases = [
@@ -37,7 +38,7 @@ const pricing = [
     desc: '小团队专业版',
     features: ['10 个项目', '自动门禁 + 协作评审', 'Skills 配置管理', '文档自动生成', '邮件支持'],
     cta: '免费试用 14 天',
-    href: '/app',
+    href: '#waitlist',
     highlight: true,
   },
   {
@@ -46,11 +47,89 @@ const pricing = [
     period: '/月',
     desc: '工作室/外包团队',
     features: ['无限项目', '全部 Pro 功能', '部署流水线', '团队权限管理', '优先支持 + SLA'],
-    cta: '联系销售',
-    href: '/app',
+    cta: '预约演示',
+    href: '#waitlist',
     highlight: false,
   },
 ];
+
+function WaitlistForm() {
+  const [email, setEmail] = useState('');
+  const [company, setCompany] = useState('');
+  const [useCase, setUseCase] = useState('');
+  const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email || !email.includes('@')) {
+      setError('请输入有效的邮箱地址');
+      return;
+    }
+    // Store in localStorage for now (will be backed by API later)
+    const entries = JSON.parse(localStorage.getItem('ph_waitlist') || '[]');
+    entries.push({ email, company, useCase, timestamp: new Date().toISOString() });
+    localStorage.setItem('ph_waitlist', JSON.stringify(entries));
+    setSubmitted(true);
+    setError('');
+  };
+
+  if (submitted) {
+    return (
+      <div className="text-center p-8 rounded-xl border border-green-500/20 bg-green-500/[0.04]">
+        <div className="text-green-400 text-lg mb-2">✓ 已加入等候名单</div>
+        <p className="text-sm text-zinc-400">我们会在 Pro 版上线时第一时间通知你。</p>
+      </div>
+    );
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="max-w-md mx-auto space-y-4">
+      <div>
+        <input
+          type="email"
+          placeholder="工作邮箱"
+          value={email}
+          onChange={(e) => { setEmail(e.target.value); setError(''); }}
+          className="w-full rounded-lg border border-zinc-700 bg-zinc-900/50 px-4 py-3 text-sm text-white placeholder-zinc-500 focus:border-brand-500 focus:outline-none"
+          required
+        />
+      </div>
+      <div>
+        <input
+          type="text"
+          placeholder="公司/团队名称（选填）"
+          value={company}
+          onChange={(e) => setCompany(e.target.value)}
+          className="w-full rounded-lg border border-zinc-700 bg-zinc-900/50 px-4 py-3 text-sm text-white placeholder-zinc-500 focus:border-brand-500 focus:outline-none"
+        />
+      </div>
+      <div>
+        <select
+          value={useCase}
+          onChange={(e) => setUseCase(e.target.value)}
+          className="w-full rounded-lg border border-zinc-700 bg-zinc-900/50 px-4 py-3 text-sm text-zinc-300 focus:border-brand-500 focus:outline-none"
+        >
+          <option value="">你用 AI 写代码的场景是…</option>
+          <option value="personal">个人项目 / Side Project</option>
+          <option value="freelance">自由职业 / 接单</option>
+          <option value="startup">创业团队</option>
+          <option value="agency">外包 / 开发工作室</option>
+          <option value="enterprise">企业团队</option>
+          <option value="other">其他</option>
+        </select>
+      </div>
+      {error && <p className="text-sm text-red-400">{error}</p>}
+      <button
+        type="submit"
+        className="w-full rounded-xl bg-brand-500 py-3 text-sm font-semibold text-white hover:bg-brand-400 transition-colors"
+      >
+        加入等候名单
+      </button>
+      <p className="text-xs text-zinc-600 text-center">不骚扰，只在有重要更新时通知。</p>
+    </form>
+  );
+}
 
 function App() {
   return (
@@ -196,24 +275,51 @@ function App() {
                     </li>
                   ))}
                 </ul>
-                <Link
-                  to={p.href}
-                  className={`block text-center rounded-lg py-2.5 text-sm font-semibold transition-colors ${
-                    p.highlight
-                      ? 'bg-brand-500 text-white hover:bg-brand-400'
-                      : 'border border-zinc-700 text-zinc-300 hover:bg-white/[0.06]'
-                  }`}
-                >
-                  {p.cta}
-                </Link>
+                {p.href === '/app' ? (
+                  <Link
+                    to={p.href}
+                    className={`block text-center rounded-lg py-2.5 text-sm font-semibold transition-colors ${
+                      p.highlight
+                        ? 'bg-brand-500 text-white hover:bg-brand-400'
+                        : 'border border-zinc-700 text-zinc-300 hover:bg-white/[0.06]'
+                    }`}
+                  >
+                    {p.cta}
+                  </Link>
+                ) : (
+                  <a
+                    href={p.href}
+                    className={`block text-center rounded-lg py-2.5 text-sm font-semibold transition-colors ${
+                      p.highlight
+                        ? 'bg-brand-500 text-white hover:bg-brand-400'
+                        : 'border border-zinc-700 text-zinc-300 hover:bg-white/[0.06]'
+                    }`}
+                  >
+                    {p.cta}
+                  </a>
+                )}
               </div>
             ))}
           </div>
         </div>
       </section>
 
+      {/* Waitlist */}
+      <section id="waitlist" className="py-24 border-t border-white/[0.06]">
+        <div className="mx-auto max-w-2xl px-6 text-center">
+          <div className="mb-6 inline-flex items-center gap-1.5 rounded-full border border-amber-500/30 bg-amber-500/[0.08] px-3 py-1 text-xs text-amber-400">
+            Pro 版即将上线
+          </div>
+          <h2 className="text-4xl font-bold tracking-tight text-white mb-4">抢先体验 Pro 版</h2>
+          <p className="text-zinc-400 mb-8">
+            留下邮箱，第一时间获得 Pro 版内测资格。前 50 名注册用户享 3 个月免费。
+          </p>
+          <WaitlistForm />
+        </div>
+      </section>
+
       {/* CTA */}
-      <section className="py-24 border-t border-white/[0.06]">
+      <section className="py-24 border-t border-white/[0.06] bg-white/[0.02]">
         <div className="mx-auto max-w-2xl px-6 text-center">
           <h2 className="text-4xl font-bold tracking-tight text-white mb-4">准备好让 AI 项目可控了吗？</h2>
           <p className="text-zinc-400 mb-8">方法论开源，平台免费起步。先用起来，再决定是否需要 Pro。</p>
@@ -237,6 +343,7 @@ function App() {
               <span>Process Hub</span>
             </div>
             <div className="flex items-center gap-6">
+              <a href="#waitlist" className="hover:text-zinc-300 transition-colors">加入等候名单</a>
               <a href="https://github.com/xyj0694/process-hub" className="hover:text-zinc-300 transition-colors">开源仓库</a>
               <a href="https://github.com/xyj0694/design-standards" className="hover:text-zinc-300 transition-colors">Design Standards</a>
               <a href="https://github.com/xyj0694/env-hub" className="hover:text-zinc-300 transition-colors">Env Hub</a>

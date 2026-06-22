@@ -4,6 +4,7 @@ import { PHASES, PHASE_INFO } from './types';
 interface Props {
   projects: Project[];
   onSelectProject: (id: string) => void;
+  onCreateNew: () => void;
 }
 
 const phaseColors: Record<string, string> = {
@@ -26,16 +27,37 @@ const phaseBarColors: Record<string, string> = {
   '复盘': 'bg-zinc-500',
 };
 
-export default function Dashboard({ projects, onSelectProject }: Props) {
+export default function Dashboard({ projects, onSelectProject, onCreateNew }: Props) {
   const phaseCounts: Record<string, number> = {};
   PHASES.forEach(p => { phaseCounts[p] = 0; });
   projects.forEach(p => { phaseCounts[p.phase]++; });
 
+  // Show empty state if no projects
+  if (projects.length === 0) {
+    return (
+      <div className="text-center py-24">
+        <div className="text-5xl mb-6">🚀</div>
+        <h2 className="text-2xl font-bold text-white mb-3">开始你的第一个 AI 辅助项目</h2>
+        <p className="text-zinc-500 mb-8 max-w-md mx-auto">
+          Process Hub 将引导你完成从构思到复盘的完整 7 阶段流程。
+        </p>
+        <button
+          onClick={onCreateNew}
+          className="rounded-xl bg-brand-500 px-6 py-3 text-sm font-semibold text-white hover:bg-brand-400 transition-colors"
+        >
+          新建项目
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div>
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-white mb-1">项目总览</h1>
-        <p className="text-sm text-zinc-500">{projects.length} 个项目</p>
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h1 className="text-2xl font-bold text-white mb-1">项目总览</h1>
+          <p className="text-sm text-zinc-500">{projects.length} 个项目</p>
+        </div>
       </div>
 
       {/* Phase distribution */}
@@ -109,6 +131,17 @@ export default function Dashboard({ projects, onSelectProject }: Props) {
             </div>
           );
         })}
+
+        {/* Add new project card */}
+        <div
+          onClick={onCreateNew}
+          className="rounded-xl border border-dashed border-white/[0.06] bg-transparent p-6 cursor-pointer hover:bg-white/[0.02] transition-colors flex items-center justify-center min-h-[140px]"
+        >
+          <div className="text-center">
+            <div className="text-2xl text-zinc-600 mb-1">+</div>
+            <div className="text-xs text-zinc-600">新建项目</div>
+          </div>
+        </div>
       </div>
     </div>
   );
